@@ -1,7 +1,8 @@
 ---
 title: R利剑NoSQL系列文章 之 Redis
 date: '2013-04-18T12:00:50+00:00'
-author: 张 丹
+author: 张丹
+description:"R利剑NoSQL系列文章，主要介绍通过R语言连接使用nosql数据库。涉及的NoSQL产品，包括Redis, MongoDB, HBase, Hive, Cassandra, Neo4j。希望通过我的介绍让广大的R语言爱好者，有更多的开发选择，做出更多地激动人心的应用。"
 categories:
   - 软件应用
 tags:
@@ -24,13 +25,13 @@ Weibo: @Conan_Z
   
 Date: 2013-4-14
 
-### **R利剑NoSQL系列文章**
+# R利剑NoSQL系列文章
 
 R利剑NoSQL系列文章，主要介绍通过R语言连接使用nosql数据库。涉及的NoSQL产品，包括Redis, MongoDB, HBase, Hive, Cassandra, Neo4j。希望通过我的介绍让广大的R语言爱好者，有更多的开发选择，做出更多地激动人心的应用。
 
 由于文章篇幅有限，均跳过NoSQL的安装过程，请自行参考文档安装。
 
-### **第二篇 R利剑Redis，分为4个章节。**
+# 第二篇 R利剑Redis，分为4个章节。
 
     Redis环境准备
     rredis函数库
@@ -40,14 +41,11 @@ R利剑NoSQL系列文章，主要介绍通过R语言连接使用nosql数据库�
 
 每一章节，都会分为“文字说明部分”和“代码部分”，保持文字说明与代码的连贯性。
 
-### **第一章 Redis环境准备**
+# 第一章 Redis环境准备
 
-#### 文字说明部分：
+### 文字说明部分：
 
 首先环境准备，这里我选择了Linux Ubuntu操作系统12.04的64位服务器版本，大家可以根据自己的使用习惯选择顺手的Linux。
-  
-<!--more-->
-
 
   
 Redis安装过程跳过。sudo apt-get install redis-server
@@ -62,10 +60,11 @@ Redis安装过程跳过。sudo apt-get install redis-server
 
 R语言环境2.15.0，WinXP通过远程连接，访问Redis server。
 
-#### **代码部分：**
+### 代码部分：
 
-查看操作系统
+- 查看操作系统
 
+    ```
     ~ uname -a
     
         Linux AY121111030241cda8003 3.2.0-29-generic #46-Ubuntu SMP Fri Jul 27 17:03:23 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
@@ -73,145 +72,166 @@ R语言环境2.15.0，WinXP通过远程连接，访问Redis server。
     ~ cat /etc/issue
     
         Ubuntu 12.04.1 LTS \n \l
-    
+    ```    
 
-启动redis
+- 启动redis
 
+    ```
     ~ /etc/init.d/redis-server start
     
         Starting redis-server: redis-server.
-    
+    ```
 
-查看系统进程
+- 查看系统进程
 
+    ```
     ~ ps -aux|grep redis
     
         redis    20128  0.0  0.0  10676  1428 ?        Ss   16:39   0:00 /usr/bin/redis-server /etc/redis/redis.conf
-    
+    ```
 
-查看启日志
+- 查看启日志
 
+    ```
     ~ cat  /var/log/redis/redis-server.log
     
         [20128] 14 Apr 16:39:43 * Server started, Redis version 2.2.12
         [20128] 14 Apr 16:39:43 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
         [20128] 14 Apr 16:39:43 * The server is now ready to accept connections on port 6379
-    
+    ```    
 
-telnet连接redis-server
+- telnet连接redis-server
 
+    ```
     ~ telnet localhost 6379
     
         Trying 127.0.0.1...
         Connected to localhost.
         Escape character is '^]'.
-    
+    ```    
 
-插入数据
+- 插入数据
 
+    ```
         rpush data 1
         :1
     
         rpush data 2
         :2
-    
+    ```    
 
-查询数据
+- 查询数据
 
+    ```
         lrange data 0 -1
         *2
         $1
         1
         $1
         2
-    
+    ```    
 
-R语言开发环境2.15.0，WinXP
+- R语言开发环境2.15.0，WinXP
 
+    ```
     ~ R
     R version 2.15.0 (2012-03-30)
     Copyright (C) 2012 The R Foundation for Statistical Computing
     ISBN 3-900051-07-0
     Platform: i386-pc-mingw32/i386 (32-bit)
-    
+    ```    
 
-### **第二章 rredis函数库**
+# 第二章 rredis函数库
 
 rredis提供了100函数，对应用redis的操作。虽然函数也不少，但是用法都是比较简单的，对R语言支持足够灵活，代码也比较简洁。
 
 下面列出了所有rredis函数库，我只挑选一些常用的介绍。
 
-#### **文字说明部分：**
+### 文字说明部分：
 
-建立连接，关闭连接
+- 建立连接，关闭连接
 
+    ```
     redisConnect() , redisClose()
-    
+    ```    
 
-清空当前/所有数据库数据
+- 清空当前/所有数据库数据
 
+    ```
     redisFlushDB() , redisFlushAll()
-    
+    ```    
 
-列出所有KEY值，KEY的数量
+- 列出所有KEY值，KEY的数量
 
+    ```
     redisKeys(), redisDBSize()
-    
+    ```    
 
-选择切换数据库:0是默认数据库
+- 选择切换数据库:0是默认数据库
 
+    ```
     redisSelect(0)    
-    
+    ```    
 
-插入string对象，批量插入
+- 插入string对象，批量插入
 
+    ```
     redisSet('x',runif(5)), redisMSet(list(x=pi,y=runif(5),z=sqrt(2)))
-    
+    ```    
 
-读取string对象，批量读取
+- 读取string对象，批量读取
 
-    redisGet('x'), redisMGet(c('x','y','z'))
-    
+    ```
+    redisGet('x'), redisMGet(c('x','y','z'))    
+    ```    
 
-删除对象
+- 删除对象
 
+    ```
     redisDelete('x')
-    
+    ```    
 
-左边插入数组对象,右边插入数组对象
+- 左边插入数组对象,右边插入数组对象
 
+    ```
     redisLPush('a',1), redisRPush('a','A')
-    
+    ```
 
-左边弹出一个数组对象， 右边弹出一个数组对象，
+- 左边弹出一个数组对象， 右边弹出一个数组对象，
 
+    ```
     redisLPop('a'), redisRPop('a')
-    
+    ```
 
-从左边显示数组对象列表
+- 从左边显示数组对象列表
 
+    ```
     redisLRange('a',0,-1)
-    
+    ```
 
-插入set类型对象
+- 插入set类型对象
 
+    ```
     redisSAdd('A',runif(2))
-    
+    ```
 
-显示set对象有几个元素，列表显示set对象元素
+- 显示set对象有几个元素，列表显示set对象元素
 
+    ```
     redisSCard('A'), redisSMembers('A')
-    
+    ```
 
-显示两个set对象的差集，交集，并集
+- 显示两个set对象的差集，交集，并集
 
+    ```
     redisSDiff(c('A','B')),redisSInter(c('A','B')),redisSUnion(c('A','B'))
-    
+    ```
 
-#### **代码部分：**
+### 代码部分：
 
-共有100个函数
+- 共有100个函数
 
+    ```
     redisAuth
     redisBgRewriteAOF
     redisBgSave
@@ -312,11 +332,11 @@ rredis提供了100函数，对应用redis的操作。虽然函数也不少，但
     redisZRemRangeByScore
     redisZScore
     redisZUnionStore
-    
+    ```
 
-### **第三章 rredis基本使用操作**
+# 第三章 rredis基本使用操作
 
-#### 文字说明部分：
+### 文字说明部分：
 
 首先，要安装rredis类库，加载类库。
 
@@ -334,10 +354,11 @@ set类型操作：插入，读取，交集，差集，并集
 
 rredis与redis-cli的交互操作
 
-#### **代码部分：**
+### 代码部分：
 
-#### redis的基本操作：
+### redis的基本操作：
 
+    ```
     #安装rredis
     install.packages(rredis)
     
@@ -377,10 +398,11 @@ rredis与redis-cli的交互操作
     
     #关闭链接
     redisClose()
-    
+    ```
 
-#### **string类型操作:**
+### string类型操作:
 
+    ```
     #插入对象
     redisSet('x',runif(5))
         1] "OK"
@@ -413,10 +435,11 @@ rredis与redis-cli的交互操作
         [1] 1
     redisGet('x')
         NULL
-    
+    ```
 
-#### **list类型操作**
+### list类型操作
 
+    ```
     #从数组左边插入数据
     redisLPush('a',1)
     redisLPush('a',2)
@@ -460,10 +483,11 @@ rredis与redis-cli的交互操作
     
     #从数据右边弹出一个数据
     redisRPop('a')
-    
+    ```
 
-#### **set类型操作**
+### set类型操作
 
+    ```
     redisSAdd('A',runif(2))
     redisSAdd('A',55)
     
@@ -514,12 +538,13 @@ rredis与redis-cli的交互操作
     
         [[3]]
         [1] 0.6494041 0.3181108
-    
+    ```
 
-#### **rredis与redis-cli交互**
+### rredis与redis-cli交互
 
-redis客户端插入数据，rredis读取数据
+- redis客户端插入数据，rredis读取数据
 
+    ```
     #打开redis客户端
     ~ redis-cli
     redis 127.0.0.1:6379> set shell "Greetings, R client!"
@@ -527,10 +552,11 @@ redis客户端插入数据，rredis读取数据
     
     redisGet('shell')
         [1] "Greetings, R client!"
-    
+    ```
 
-rredis插入数据，redis客户端读取数据
+- rredis插入数据，redis客户端读取数据
 
+    ```
     #插入数据
     redisSet('R', 'Greetings, shell client!')
         [1] "OK"
@@ -538,25 +564,26 @@ rredis插入数据，redis客户端读取数据
     #读取数据(有乱码)
     redis 127.0.0.1:6379> get R
         "X\\x00\x00\x00\x02\x00\x02\x0f\x00\x00\x02\x03\x00\x00\x00\x00\x10\x00\x00\x00\x01\x00\x04\x00\\x00\x00\x00\x18Greetings, shell client!"
-    
+    ```
 
-转型以数组方式存储(charToRaw)
+- 转型以数组方式存储(charToRaw)
 
+    ```
     redisSet('R', charToRaw('Greetings, shell client!'))
         [1] TRUE
     
     #正常读取数据
     redis 127.0.0.1:6379> get R
         "Greetings, shell client!"
-    
+    ```
 
-### **第四章 rredis测试案例**
+# 第四章 rredis测试案例
 
 测试案例的需求：
   
 读入一个数据文件，从左到右分别是用户id，口令，邮箱，在redis里建立合适的数据模型，并将这些数据导入到redis。
 
-#### **文字说明部分：**
+### 文字说明部分：
 
 首先，定义数据模型：
 
@@ -578,8 +605,9 @@ R语言读入数据文件。
 
 以users:wolys为KEY，输出对应用的VALVE值。
 
-#### **代码部分**
+### 代码部分
 
+    ```
     #读入数据
     data<-scan(file="data5.txt",what=character(),sep=" ")
     data<-data[which(data!='#')]
@@ -637,11 +665,11 @@ R语言读入数据文件。
     
     #关闭redis连接
     redisClose()
-    
+    ```
 
 完成测试案例。
 
-#### 数据文件：data5.txt
+### 数据文件：data5.txt
 
     wolys # wolysopen111 # wolys@21cn.com
     coralshanshan # 601601601 # zss1984@126.com
